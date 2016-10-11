@@ -5,7 +5,7 @@
 (c)            Silva GG, Dutilh BE, Matthews TD, Elkins K, Schmieder R, Dinsdale EA, Edwards RA
 Please cite:   "Combining de novo and reference-guided assembly with Scaffold_builder", Source Code for Biology and Medicine 2013
 
-WEBSERVER
+WEBSERVEr
 -----
 http://edwards.sdsu.edu/scaffold_builder/
 
