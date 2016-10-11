@@ -4,7 +4,11 @@
 
 (c)            Silva GG, Dutilh BE, Matthews TD, Elkins K, Schmieder R, Dinsdale EA, Edwards RA
 Please cite:   "Combining de novo and reference-guided assembly with Scaffold_builder", Source Code for Biology and Medicine 2013
-website: http://edwards.sdsu.edu/scaffold_builder/
+
+WEBSERVER
+-----
+http://edwards.sdsu.edu/scaffold_builder/
+
 
 
 USAGE
@@ -51,7 +55,6 @@ python scaffold_builder.py -q query_contigs.fna -r reference_genome.fna -p outpu
 
 	-g maximum gap length allowed (default 5000nt)
 
-For further info please visit the crAss website at http://edwards.sdsu.edu/scaffold_builder/
 
 
 DEPENDENCIES
