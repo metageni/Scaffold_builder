@@ -1,19 +1,39 @@
-# Scaffold_builder
- Combining de novo and reference-guided assembly with Scaffold_builder
------
+![](logo/scaffold_builder_logo.png "Logo")
 
-(c)            Silva GG, Dutilh BE, Matthews TD, Elkins K, Schmieder R, Dinsdale EA, Edwards RA
-Please cite:   "Combining de novo and reference-guided assembly with Scaffold_builder", Source Code for Biology and Medicine 2013
+#### Scaffold_builder: Combining de novo and reference-guided assembly with Scaffold_builder
+* [Installation](#installation)
+    * [dependencies](#dependencies)
+    * [bioconda](#bioconda)
+    * [webserver](#webserver)
+    * [git](#git)
+* [Usage](#usage)
+* [Citing](#citing)
 
-WEBSERVER
------
-http://edwards.sdsu.edu/scaffold_builder/
+## Installation
+### Dependencies
+- [Python 2.7](http://www.python.org/download)
+- [MUMMER (nucmer)](http://mummer.sourceforge.net/)
 
+### Bioconda
+You can now easily install FOCUS using [conda](https://conda.io) via the
+[Bioconda](https://bioconda.github.io/) channel. It is as easy as:
 
+    # bioconda should handle all the dependencies
+    conda create -n scaffold_builder -c bioconda scaffold_builder
+	source activate scaffold_builder
 
-USAGE
------
-python scaffold_builder.py -q query_contigs.fna -r reference_genome.fna -p output_prefix [-t] [-i] [-a] [-b]
+### Webserver
+    http://edwards.sdsu.edu/scaffold_builder/
+
+### Git
+    # clone focus
+	git clone git@github.com:metageni/Scaffold_builder.git
+	# run scaffold_builder.py
+	python2.7 scaffold_builder.py -q [QUERY] -r [REFERENCE]
+
+## Usage
+
+    scaffold_builder.py -q query_contigs.fna -r reference_genome.fna -p output_prefix [-t] [-i] [-a] [-b]
 
 	-q fasta file of contigs
 		Required. Query contigs in Fasta format. These contigs may be the output of a de novo
@@ -56,23 +76,11 @@ python scaffold_builder.py -q query_contigs.fna -r reference_genome.fna -p outpu
 	-g maximum gap length allowed (default 5000nt)
 
 
+## Citing
+Scaffold_Builder was written by Genivaldo G. Z. Silva. Feel free to [contact me](mailto:genivaldo.gueiros@gmail.com)
 
-DEPENDENCIES
-------------
-python 2.7.X or 2.9.Y
+If you use Scaffold_Builder, please cite it:
 
-COPYRIGHT AND LICENSE
----------------------
-Copyright (C) 2011-2013  Genivaldo GZ Silva
-
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation, either version 3 of the License, or (at your option) any later
-version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with
-this program.  If not, see <http://www.gnu.org/licenses/>.
+	Silva GG, Dutilh BE, Matthews TD, Elkins K, Schmieder R, Dinsdale EA, Edwards RA.
+	Combining de novo and reference-guided assembly with Scaffold_builder,
+	Source Code for Biology and Medicine 2013.
