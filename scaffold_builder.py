@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 # Scaffold_builder version 2.2
 
 # (c)            Silva GG, Dutilh BE, Matthews TD, Elkins K, Schmieder R, Dinsdale EA, Edwards RA
