@@ -15,7 +15,7 @@
 - [MUMMER (nucmer)](http://mummer.sourceforge.net/)
 
 ### Bioconda
-You can now easily install FOCUS using [conda](https://conda.io) via the
+You can now easily install Scaffold_builder using [conda](https://conda.io) via the
 [Bioconda](https://bioconda.github.io/) channel. It is as easy as:
 
     # bioconda should handle all the dependencies
@@ -23,10 +23,11 @@ You can now easily install FOCUS using [conda](https://conda.io) via the
 	source activate scaffold_builder
 
 ### Webserver
+    # you can upload small query and references files to the webserver
     http://edwards.sdsu.edu/scaffold_builder/
 
 ### Git
-    # clone focus
+    # clone scaffold_builder
 	git clone git@github.com:metageni/Scaffold_builder.git
 	# run scaffold_builder.py
 	python2.7 scaffold_builder.py -q [QUERY] -r [REFERENCE]
