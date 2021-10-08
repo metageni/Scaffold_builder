@@ -46,6 +46,7 @@ def needlemanWunsch(seqA,seqB,minimumIdentity):
         consensus=""
         for i in range(len(sequence1)):
             l=[sequence1[i],sequence2[i]]
+            #Prioritise seqA's sequence at indels for the first quarter of the overlap
             if i<len(sequence1)*0.25:
                 if l[0]=="-":
                     consensus+=""
@@ -63,7 +64,7 @@ def needlemanWunsch(seqA,seqB,minimumIdentity):
 
                 else:
                     consensus+=l[0]
-
+            #Priortise seqB's sequence at indels for the last quarter of the overlap
             elif i>len(sequence1)*0.75:
                 if l[1]=="-":
                     consensus+=""
@@ -596,6 +597,7 @@ def run():
         parameters["-b"]=int(parameters["-b"])
         
         #Run Nucmer // Creates the folder to the aligments and overlaps
+        #Use user defined prefix for out.delta
         os.system(which("nucmer")+" -b 1500 -g 500 "+parameters["-r"]+" "+parameters["-q"]+" -p "+parameters["-p"]+" && "+which("show-coords")+" "+parameters["-p"]+".delta >"+parameters["-p"]+".coords && rm "+parameters["-p"]+".delta && mkdir "+parameters["-p"]+"_overlap_alignment")
         return True
 
