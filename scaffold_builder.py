@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 # Scaffold_builder version 2.2
 
 # (c)            Silva GG, Dutilh BE, Matthews TD, Elkins K, Schmieder R, Dinsdale EA, Edwards RA
@@ -48,18 +46,55 @@ def needlemanWunsch(seqA,seqB,minimumIdentity):
         consensus=""
         for i in range(len(sequence1)):
             l=[sequence1[i],sequence2[i]]
-            if "-" in l:l.remove("-")
-            l=list(set(l))
-            l.sort()
+            #Prioritise seqA's sequence at indels for the first quarter of the overlap
+            if i<len(sequence1)*0.25:
+                if l[0]=="-":
+                    consensus+=""
+                elif "-" not in l:
+                    l=list(set(l))
+                    l.sort()
+                    if len(l)>1:
+                        letter="".join(l)
+                        if letter not in iupac:
+                            consensus+="N"
+                        else:
+                            consensus+=iupac[letter]
+                    else:
+                        consensus+=l[0]
 
-            if len(l)>1:
-                letter="".join(l)
-                if letter not in iupac:
-                    consensus+="N"
                 else:
-                    consensus+=iupac[letter]
+                    consensus+=l[0]
+            #Priortise seqB's sequence at indels for the last quarter of the overlap
+            elif i>len(sequence1)*0.75:
+                if l[1]=="-":
+                    consensus+=""
+                elif "-" not in l:
+                    l=list(set(l))
+                    l.sort()
+                    if len(l)>1:
+                        letter="".join(l)
+                        if letter not in iupac:
+                            consensus+="N"
+                        else:
+                            consensus+=iupac[letter]
+                    else:
+                        consensus+=l[0]
+                else:
+                    consensus+=l[1]
             else:
-                consensus+=l[0]
+                if "-" in l:
+                    l.remove("-")
+                    l=list(set(l))
+                    l.sort()
+
+                    if len(l)>1:
+                        letter="".join(l)
+                        if letter not in iupac:
+                            consensus+="N"
+                        else:
+                            consensus+=iupac[letter]
+                else:
+                    consensus+=l[0]
         return consensus
 
     def createMatrix():
@@ -131,10 +166,19 @@ def needlemanWunsch(seqA,seqB,minimumIdentity):
                 alignmentA=seqA[c]+alignmentA
                 alignmentB="-"+alignmentB
 
-            else:#i==0 #up
+            else: #i==0 #up
                 l-=1
                 alignmentA="-"+alignmentA
                 alignmentB=seqB[l]+alignmentB
+
+            if l==0 and not c==0: #make sure to reach the end of seqA
+                c=0
+                al_len=len(alignmentA.replace("-",""))
+                missing=len(seqA)-al_len
+                alignmentA=seqA[0:missing]+alignmentA
+                for n in range(missing):
+                    alignmentB="-"+alignmentB                
+                
         perc=perIdentity(alignmentA,alignmentB)
 
         consensusSequence=""
@@ -553,7 +597,8 @@ def run():
         parameters["-b"]=int(parameters["-b"])
         
         #Run Nucmer // Creates the folder to the aligments and overlaps
-        os.system(which("nucmer")+" "+parameters["-r"]+" "+parameters["-q"]+" && "+which("show-coords")+" out.delta >"+parameters["-p"]+".coords && rm out.delta && mkdir "+parameters["-p"]+"_overlap_alignment")
+        #Use user defined prefix for out.delta
+        os.system(which("nucmer")+" -b 1500 -g 500 "+parameters["-r"]+" "+parameters["-q"]+" -p "+parameters["-p"]+" && "+which("show-coords")+" "+parameters["-p"]+".delta >"+parameters["-p"]+".coords && rm "+parameters["-p"]+".delta && mkdir "+parameters["-p"]+"_overlap_alignment")
         return True
 
 
