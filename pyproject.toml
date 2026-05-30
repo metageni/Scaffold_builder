@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "scaffold-builder"
+version = "2.2"
+description = "Combining de novo and reference-guided assembly with Scaffold_builder"
+readme = "README.md"
+license = { file = "COPYING" }
+requires-python = ">=3.8"
+dependencies = ["click>=8.0"]
+
+[project.scripts]
+scaffold_builder = "cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["utils*", "scaffold_builder*", "cli*"]

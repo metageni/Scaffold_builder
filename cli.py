@@ -1,14 +1,15 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 CLI entry point for Scaffold_builder.
 
-Parses command-line arguments and delegates to the pipeline in
-scaffold_builder.py. Configure logging here; keep core logic clean.
+Defines the command-line interface using click and delegates to the
+scaffolding pipeline in scaffold_builder.py. Logging is configured here.
 """
 
 import sys
 import logging
-import argparse
+
+import click
 
 from utils import DEFAULTS
 from utils import VERSION
@@ -17,51 +18,40 @@ from scaffold_builder import (build_parameters,
                                run)
 
 
-def parse_args(argv=None):
-    """Parse command-line arguments for Scaffold_builder.
+@click.command(context_settings={"help_option_names": ["-h", "--help"]})
+@click.version_option(VERSION, "-v", "--version")
+@click.option("-q", required=True, type=click.Path(exists=True),
+              help="Query contigs in FASTA format.")
+@click.option("-r", required=True, type=click.Path(exists=True),
+              help="Reference genome in FASTA format.")
+@click.option("-p", default=DEFAULTS["-p"], show_default=True,
+              help="Output file prefix.")
+@click.option("-t", default=DEFAULTS["-t"], show_default=True, type=int,
+              help="Terminus length to align (nt).")
+@click.option("-i", default=DEFAULTS["-i"], show_default=True, type=int,
+              help="Minimum identity for merging overlaps (%%).")
+@click.option("-a", default=DEFAULTS["-a"], show_default=True, type=int,
+              help="Ambiguous mapping threshold (%%).")
+@click.option("-b", default=str(DEFAULTS["-b"]), show_default=True,
+              type=click.Choice(["0", "1"]),
+              help="Rearrangement behaviour: 0=end-to-end, 1=new scaffold.")
+@click.option("-g", default=DEFAULTS["-g"], show_default=True, type=int,
+              help="Maximum gap length before scaffold break (nt).")
+def main(q, r, p, t, i, a, b, g):
+    """Scaffold_builder: combine de novo and reference-guided assembly.
 
-    Args:
-        argv (list[str] | None): Argument list; defaults to sys.argv[1:].
-
-    Returns:
-        argparse.Namespace: Parsed arguments.
+    Scaffolds query contigs (-q) against a reference genome (-r) using
+    MUMmer (nucmer) alignments.
     """
-    parser = argparse.ArgumentParser(
-        prog="scaffold_builder",
-        description=f"Scaffold_builder v{VERSION}: Combining de novo and reference-guided assembly.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    parser.add_argument("-q", required=True, metavar="QUERY",
-                        help="Query contigs in FASTA format.")
-    parser.add_argument("-r", required=True, metavar="REFERENCE",
-                        help="Reference genome in FASTA format.")
-    parser.add_argument("-p", default=DEFAULTS["-p"], metavar="PREFIX",
-                        help=f"Output file prefix (default: {DEFAULTS['-p']}).")
-    parser.add_argument("-t", type=int, default=DEFAULTS["-t"], metavar="INT",
-                        help=f"Terminus length to align (default: {DEFAULTS['-t']} nt).")
-    parser.add_argument("-i", type=int, default=DEFAULTS["-i"], metavar="INT",
-                        help=f"Minimum identity for merging (default: {DEFAULTS['-i']}%%).")
-    parser.add_argument("-a", type=int, default=DEFAULTS["-a"], metavar="INT",
-                        help=f"Ambiguous mapping threshold (default: {DEFAULTS['-a']}%%).")
-    parser.add_argument("-b", type=int, default=DEFAULTS["-b"], choices=[0, 1],
-                        help=f"Rearrangement behaviour: 0=end-to-end, 1=new scaffold (default: {DEFAULTS['-b']}).")
-    parser.add_argument("-g", type=int, default=DEFAULTS["-g"], metavar="INT",
-                        help=f"Maximum gap length (default: {DEFAULTS['-g']} nt).")
-    return parser.parse_args(argv)
-
-
-def main():
-    """Configure logging, parse arguments, and run the pipeline."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    args = parse_args()
     parameters = build_parameters({
-        "-q": args.q, "-r": args.r, "-p": args.p,
-        "-t": args.t, "-i": args.i, "-a": args.a,
-        "-b": args.b, "-g": args.g,
+        "-q": q, "-r": r, "-p": p,
+        "-t": t, "-i": i, "-a": a,
+        "-b": int(b), "-g": g,
     })
     try:
         run(parameters)
-        print("Scaffolded :)")
+        click.echo("Scaffolded :)")
     except Exception as exc:
         logging.error("%s", exc)
         sys.exit(1)

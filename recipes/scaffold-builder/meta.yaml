@@ -1,0 +1,40 @@
+{% set version = "2.2" %}
+
+package:
+  name: scaffold-builder
+  version: {{ version }}
+
+source:
+  url: https://github.com/metageni/Scaffold_builder/archive/refs/tags/{{ version }}.tar.gz
+  sha256: PLACEHOLDER_REPLACE_WITH_ACTUAL_SHA256
+
+build:
+  number: 0
+  noarch: python
+  script: pip install --no-deps --no-build-isolation .
+  entry_points:
+    - scaffold_builder = cli:main
+
+requirements:
+  host:
+    - pip
+    - python >=3.8
+    - setuptools >=61
+  run:
+    - click >=8.0
+    - python >=3.8
+    - mummer4
+
+test:
+  commands:
+    - scaffold_builder --help
+
+about:
+  home: https://github.com/metageni/Scaffold_builder
+  license: GPL-3.0-only
+  license_file: COPYING
+  summary: Combining de novo and reference-guided assembly with Scaffold_builder
+
+extra:
+  recipe-maintainers:
+    - metageni
