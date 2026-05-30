@@ -13,7 +13,11 @@
       ],
       "deniedPaths": [
         "./tests/fixtures/query.fasta",
-        "./tests/fixtures/reference.fasta"
+        "./tests/fixtures/reference.fasta",
+        "./tests/fixtures/median_query.fasta",
+        "./tests/fixtures/median_reference.fasta",
+        "./tests/fixtures/large_query.fasta",
+        "./tests/fixtures/large_reference.fasta"
       ]
     },
     "shell": {
@@ -30,7 +34,10 @@
     "file://utils.py",
     "file://scaffold_builder.py",
     "file://cli.py",
-    "file://main.py"
+    "file://main.py",
+    "file://pyproject.toml",
+    "file://tests/test_unit.py",
+    "file://tests/test_integration.py"
   ],
   "hooks": {
     "agentSpawn": [

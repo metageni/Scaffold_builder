@@ -3,79 +3,66 @@
 #### Scaffold_builder: Combining de novo and reference-guided assembly with Scaffold_builder
 * [Installation](#installation)
     * [dependencies](#dependencies)
+    * [pip](#pip)
     * [bioconda](#bioconda)
-    * [webserver](#webserver)
     * [git](#git)
 * [Usage](#usage)
+* [Testing](#testing)
 * [Citing](#citing)
+
+> **v3.0.0** — Complete Python 3 rewrite. Produces byte-for-byte identical scaffold
+> output to v2.2. Fixes N50 calculation and average-length rounding bugs present in
+> the original. See [CHANGELOG.md](CHANGELOG.md) for details.
 
 ## Installation
 ### Dependencies
-- [Python 2.7](http://www.python.org/download)
-- [MUMMER (nucmer)](http://mummer.sourceforge.net/)
+- [Python 3.8+](https://www.python.org/downloads/)
+- [click](https://click.palletsprojects.com/)
+- [MUMmer4 (nucmer)](https://github.com/mummer4/mummer)
+
 
 ### Bioconda
-You can now easily install Scaffold_builder using [conda](https://conda.io) via the
-[Bioconda](https://bioconda.github.io/) channel. It is as easy as:
+Install Scaffold_builder and all dependencies (including MUMmer4) via [conda](https://conda.io):
 
-    # bioconda should handle all the dependencies
-    conda create -n scaffold_builder -c bioconda scaffold_builder
-	source activate scaffold_builder
-
-### Webserver
-    # you can upload small query and references files to the webserver
-    http://edwards.sdsu.edu/scaffold_builder/
+    conda create -n scaffold_builder -c bioconda -c conda-forge scaffold-builder
+    conda activate scaffold_builder
 
 ### Git
-    # clone scaffold_builder
-	git clone git@github.com:metageni/Scaffold_builder.git
-	# run scaffold_builder.py
-	python2.7 scaffold_builder.py -q [QUERY] -r [REFERENCE]
+
+    git clone https://github.com/metageni/Scaffold_builder.git
+    cd Scaffold_builder
+    pip install .
+    scaffold_builder -q [QUERY] -r [REFERENCE]
 
 ## Usage
 
-    scaffold_builder.py -q query_contigs.fna -r reference_genome.fna -p output_prefix [-t] [-i] [-a] [-b]
+    scaffold_builder -q query_contigs.fna -r reference_genome.fna -p output_prefix [-t] [-i] [-a] [-b] [-g]
 
-	-q fasta file of contigs
-		Required. Query contigs in Fasta format. These contigs may be the output of a de novo
-		assembly program such as Newbler, Velvet or MIRA.
+    -q  fasta file of contigs
+        Required. Query contigs in FASTA format.
 
-	-r fasta file containing reference genome
-		Required. Reference genome in Fasta format. This should preferably be a completed genome
-		sequence.
+    -r  fasta file containing reference genome
+        Required. Reference genome in FASTA format.
 
-	-p prefix output files
-		Required. All the output files have this project name as prefix.
+    -p  prefix for output files  [default: Scaffold]
 
-	-t length of terminus that will be aligned (default 300 nt)
-		At any break between two contigs, scaffold_builder checks whether the termini
-		of the adjacent contigs are homologous by aligning them using Smith-Waterman's Algorithm, and
-		combines them if that is the case.
+    -t  length of terminus that will be aligned  [default: 300 nt]
+        Scaffold_builder checks whether the termini of adjacent contigs are
+        homologous by aligning them with Needleman-Wunsch and merges them if so.
 
-	-i minimum identity for merging contigs (default 80%)
-		If the termini are similar, scaffold_builder assumes that the contigs should
-		have been combined by the assembly program, but the similarity was probably
-		below the assembly thresholds, or the contigs were not merged due to ambiguous
-		read mapping. The sequences are combined and in the case that non-identical
-		nucleotides are aligned, the IUPAC code of their consensus is placed in the
-		resulting sequence.
+    -i  minimum identity for merging contigs  [default: 80%]
+        Non-identical aligned nucleotides are represented with IUPAC ambiguity codes.
 
-	-a minimum length for ambiguously mapped contigs (default 95%)
-		If a contig maps to more than one location on the reference genome, it will
-		not be scaffolded because it's location is ambiguous. This parameter defines
-		how much of the length of a contig should be mapped in more than one location
-		for it to be considered ambiguously mapped.
+    -a  ambiguous mapping threshold  [default: 95%]
+        Contigs mapping to more than one location over this percentage of their
+        length are excluded from scaffolding.
 
-	-b 0/1 dictates behavior for rearrangements (default 0)
-		0: place end-to-end
-		1: create new scaffold sequence
-		If the mapping of the contigs onto the reference suggests that they overlap,
-		but the contig termini are too dissimilar to join them, this option dictates
-		whether scaffold_builder places the contigs end-to-end (default; deletions
-		expected) or to start a new scaffold sequence (inversions expected).
+    -b  rearrangement behaviour  [default: 0]
+        0: place end-to-end
+        1: create new scaffold sequence
 
-	-g maximum gap length allowed (default 5000nt)
-
+    -g  maximum gap length allowed  [default: 5000 nt]
+        Gaps larger than this value split the scaffold into a new sequence.
 
 ## Citing
 Scaffold_Builder was written by Genivaldo G. Z. Silva. Feel free to [contact me](mailto:genivaldo.gueiros@gmail.com)

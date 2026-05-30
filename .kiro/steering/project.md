@@ -35,10 +35,15 @@ de novo assembled contigs against a reference genome using MUMmer (nucmer) align
 
 ## Testing
 - Run: `python3 -m pytest tests/ -v`
-- 65 tests total: 40 unit (test_unit.py) + 25 integration (test_integration.py)
-- Fixtures in `tests/fixtures/`: query.fasta, reference.fasta, test.coords, ambiguous.coords, reverse.coords
+- 112 tests total: 40 unit (test_unit.py) + 72 integration (test_integration.py)
+- Fixtures in `tests/fixtures/`: query.fasta, reference.fasta, test.coords, ambiguous.coords, reverse.coords, median_query.fasta, median_reference.fasta, median.coords, large_query.fasta, large_reference.fasta, large.coords, large2_query.fasta, large2_reference.fasta, large3_query.fasta, large3_reference.fasta
 - Integration tests bypass nucmer entirely using pre-baked .coords fixtures
-- nucmer is NOT available in the dev environment — never call `run_nucmer()` in tests
+- nucmer IS available in the dev environment; end-to-end tests (TestLargeEndToEnd, TestLarge2EndToEnd, TestLarge3EndToEnd) call `run_nucmer()` directly
+
+## Packaging
+- `pyproject.toml` defines the package; entry point: `scaffold_builder = "cli:main"`
+- Runtime dependency: `click>=8.0`
+- Build: `pip install .`
 
 ## Parity Requirement
 All logic must produce output identical to the original Python 2 scaffold_builder.py.

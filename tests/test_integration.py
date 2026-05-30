@@ -748,3 +748,123 @@ class TestLargeEndToEnd:
         assert "Number of sequences\t37\t4" in log
         assert "N50\t14464\t279979" in log
         assert "Total length of gaps\t-\t39265" in log
+
+
+# ---------------------------------------------------------------------------
+# large2 fixture (400 kb ref, 28 contigs 8–18 kb, random seed 7)
+# ---------------------------------------------------------------------------
+
+LARGE2_QUERY = str(FIXTURES / "large2_query.fasta")
+LARGE2_REF   = str(FIXTURES / "large2_reference.fasta")
+
+
+@pytest.mark.skipif(
+    not shutil.which("nucmer"),
+    reason="nucmer not available",
+)
+class TestLarge2EndToEnd:
+    """End-to-end test on large2 inputs (400 kb ref, 28 contigs 8–18 kb, seed 7)."""
+
+    def _run(self, tmp_path):
+        """Run full pipeline via scaffold_builder.run().
+
+        Args:
+            tmp_path (Path): Pytest temporary directory.
+
+        Returns:
+            tuple: (params, scaffold_text, log_text)
+        """
+        from scaffold_builder import run
+        prefix = str(tmp_path / "out")
+        params = build_parameters({"-q": LARGE2_QUERY, "-r": LARGE2_REF, "-p": prefix})
+        run(params)
+        scaffold = (tmp_path / "out_Scaffold.fasta").read_text()
+        log = (tmp_path / "out_output.txt").read_text()
+        return params, scaffold, log
+
+    def test_scaffold_produced(self, tmp_path):
+        """large2: at least one scaffold is produced."""
+        _, scaffold, _ = self._run(tmp_path)
+        assert ">Scaffold_1" in scaffold
+
+    def test_log_statistics(self, tmp_path):
+        """large2: log statistics match golden values from end-to-end run."""
+        _, _, log = self._run(tmp_path)
+        assert "Total length\t364636\t397890" in log
+        assert "Number of sequences\t30\t3" in log
+        assert "Total length of gaps\t-\t33254" in log
+        assert "Non-overlapping contig pairs\t-\t27" in log
+
+    def test_gap_stats(self, tmp_path):
+        """large2: gap count and bounds match golden values."""
+        params, _, _ = self._run(tmp_path)
+        assert len(params["gaps"]) == 27
+        assert min(params["gaps"]) == 352
+        assert max(params["gaps"]) == 1980
+        assert sum(params["gaps"]) == 33254
+
+    def test_no_overlaps(self, tmp_path):
+        """large2: no overlapping contig pairs (all gaps)."""
+        params, _, _ = self._run(tmp_path)
+        assert params["overlapOver"] == 0
+        assert params["overlapBelow"] == 0
+
+
+# ---------------------------------------------------------------------------
+# large3 fixture (600 kb ref, 45 contigs 5–15 kb, random seed 13)
+# ---------------------------------------------------------------------------
+
+LARGE3_QUERY = str(FIXTURES / "large3_query.fasta")
+LARGE3_REF   = str(FIXTURES / "large3_reference.fasta")
+
+
+@pytest.mark.skipif(
+    not shutil.which("nucmer"),
+    reason="nucmer not available",
+)
+class TestLarge3EndToEnd:
+    """End-to-end test on large3 inputs (600 kb ref, 45 contigs 5–15 kb, seed 13)."""
+
+    def _run(self, tmp_path):
+        """Run full pipeline via scaffold_builder.run().
+
+        Args:
+            tmp_path (Path): Pytest temporary directory.
+
+        Returns:
+            tuple: (params, scaffold_text, log_text)
+        """
+        from scaffold_builder import run
+        prefix = str(tmp_path / "out")
+        params = build_parameters({"-q": LARGE3_QUERY, "-r": LARGE3_REF, "-p": prefix})
+        run(params)
+        scaffold = (tmp_path / "out_Scaffold.fasta").read_text()
+        log = (tmp_path / "out_output.txt").read_text()
+        return params, scaffold, log
+
+    def test_scaffold_produced(self, tmp_path):
+        """large3: at least one scaffold is produced."""
+        _, scaffold, _ = self._run(tmp_path)
+        assert ">Scaffold_1" in scaffold
+
+    def test_log_statistics(self, tmp_path):
+        """large3: log statistics match golden values from end-to-end run."""
+        _, _, log = self._run(tmp_path)
+        assert "Total length\t480638\t547259" in log
+        assert "Number of sequences\t47\t3" in log
+        assert "Total length of gaps\t-\t66621" in log
+        assert "Non-overlapping contig pairs\t-\t44" in log
+
+    def test_gap_stats(self, tmp_path):
+        """large3: gap count and bounds match golden values."""
+        params, _, _ = self._run(tmp_path)
+        assert len(params["gaps"]) == 44
+        assert min(params["gaps"]) == 147
+        assert max(params["gaps"]) == 2904
+        assert sum(params["gaps"]) == 66621
+
+    def test_no_overlaps(self, tmp_path):
+        """large3: no overlapping contig pairs (all gaps)."""
+        params, _, _ = self._run(tmp_path)
+        assert params["overlapOver"] == 0
+        assert params["overlapBelow"] == 0

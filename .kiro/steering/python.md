@@ -34,14 +34,15 @@ Configure `logging.basicConfig()` at the entry point only (`cli.py` / `main.py`)
 
 ## CLI Separation
 CLI code lives exclusively in `cli.py`. Core logic modules must never contain argparse or sys.argv.
+CLI is implemented with `click` (not argparse).
 
 ## Module Layout
 ```
 utils.py            — pure/stateless functions only
 scaffold_builder.py — pipeline orchestration (build_parameters, run_nucmer, run)
-cli.py              — argparse CLI + logging config
+cli.py              — click CLI + logging config
 main.py             — entry point: calls cli.main()
 tests/
-  test_unit.py      — unit tests; import pure functions from utils
+  test_unit.py        — unit tests; import pure functions from utils
   test_integration.py — integration tests; import from scaffold_builder + utils
 ```

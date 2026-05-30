@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """
 Pure utility functions for Scaffold_builder.
 
@@ -7,14 +7,14 @@ pipeline: sequence manipulation, alignment, coordinate parsing, gap/overlap
 logic, FASTA I/O, and statistics.
 """
 
-import os
 import logging
 
+from importlib.metadata import version as _pkg_version
+
 try:
-    from importlib.metadata import version as _pkg_version
     VERSION = _pkg_version("scaffold-builder")
 except Exception:
-    VERSION = "2.2"
+    VERSION = "3.0.0"
 
 DEFAULTS = {
     "-a": 95,
