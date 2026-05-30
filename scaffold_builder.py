@@ -92,3 +92,7 @@ def run(parameters):
     cleaned = clean_coords(coords, parameters, hash_sequences)
     sort_mapping(cleaned, parameters, hash_sequences)
     logging.info("Scaffolded successfully.")
+
+if __name__ == "__main__":
+    from cli import main
+    main()

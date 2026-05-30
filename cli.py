@@ -55,3 +55,6 @@ def main(q, r, p, t, i, a, b, g):
     except Exception as exc:
         logging.error("%s", exc)
         sys.exit(1)
+
+if __name__ == "__main__":
+    main()

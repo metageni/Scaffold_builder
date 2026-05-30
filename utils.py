@@ -10,7 +10,11 @@ logic, FASTA I/O, and statistics.
 import os
 import logging
 
-VERSION = "2.2"
+try:
+    from importlib.metadata import version as _pkg_version
+    VERSION = _pkg_version("scaffold-builder")
+except Exception:
+    VERSION = "2.2"
 
 DEFAULTS = {
     "-a": 95,
