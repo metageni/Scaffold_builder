@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.1] — 2026-05-30
+
+### Bug Fixes
+
+- **nucmer race condition** — `run_nucmer()` now writes the intermediate `.delta`
+  file to a unique temporary path (via `tempfile.NamedTemporaryFile`) instead of
+  `<prefix>.delta` in the working directory. Multiple concurrent jobs running from
+  the same directory no longer collide on the delta file.
+
+---
+
 ## [3.0.0] — 2026-05-30
 
 ### Rewrite

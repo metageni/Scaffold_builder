@@ -44,6 +44,7 @@ de novo assembled contigs against a reference genome using MUMmer (nucmer) align
 - `pyproject.toml` defines the package; entry point: `scaffold_builder = "cli:main"`
 - Runtime dependency: `click>=8.0`
 - Build: `pip install .`
+- Current version: `3.0.1`
 
 ## Parity Requirement
 All logic must produce output identical to the original Python 2 scaffold_builder.py.

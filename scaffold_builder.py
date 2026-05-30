@@ -9,6 +9,7 @@ the pure utility functions from utils.py into the full scaffolding pipeline.
 import os
 import logging
 import subprocess
+import tempfile
 
 from shutil import which
 from pathlib import Path
@@ -66,14 +67,20 @@ def run_nucmer(parameters):
     prefix = parameters["-p"]
     Path(prefix + "_overlap_alignment").mkdir(exist_ok=True)
 
-    subprocess.run(
-        [nucmer_bin, "-b", "1500", "-g", "500",
-         parameters["-r"], parameters["-q"], "-p", prefix],
-        check=True,
-    )
-    with open(prefix + ".coords", "w") as fh:
-        subprocess.run([show_coords_bin, prefix + ".delta"], stdout=fh, check=True)
-    os.remove(prefix + ".delta")
+    with tempfile.NamedTemporaryFile(suffix=".delta", delete=False) as tmp:
+        delta_path = tmp.name
+
+    try:
+        subprocess.run(
+            [nucmer_bin, "-b", "1500", "-g", "500",
+             parameters["-r"], parameters["-q"], "-p", delta_path[:-6]],
+            check=True,
+        )
+        with open(prefix + ".coords", "w") as fh:
+            subprocess.run([show_coords_bin, delta_path], stdout=fh, check=True)
+    finally:
+        if os.path.exists(delta_path):
+            os.remove(delta_path)
     logging.info("nucmer alignment complete: %s.coords", prefix)
 
 

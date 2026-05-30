@@ -10,9 +10,9 @@
 * [Testing](#testing)
 * [Citing](#citing)
 
-> **v3.0.0** — Complete Python 3 rewrite. Produces byte-for-byte identical scaffold
-> output to v2.2. Fixes N50 calculation and average-length rounding bugs present in
-> the original. See [CHANGELOG.md](CHANGELOG.md) for details.
+> **v3.0.1** — Fixes a race condition where concurrent jobs from the same
+> directory could collide on the intermediate nucmer `.delta` file; the file is
+> now written to a unique system temp path. See [CHANGELOG.md](CHANGELOG.md) for details.
 
 ## Installation
 ### Dependencies
