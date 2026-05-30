@@ -1,0 +1,43 @@
+{
+  "name": "scaffold-builder-dev",
+  "description": "Scaffold_builder development agent — bioinformatics Python 3 project",
+  "prompt": "You are working on Scaffold_builder, a Python 3 bioinformatics tool that scaffolds de novo assembled contigs against a reference genome. The codebase is split into utils.py (pure functions), scaffold_builder.py (pipeline orchestration), cli.py (CLI), and main.py (entry point). Always follow the coding standards in .kiro/steering/python.md and the project conventions in .kiro/steering/project.md. Run tests with: python3 -m pytest tests/ -v",
+  "tools": ["read", "write", "shell", "grep", "glob", "code"],
+  "allowedTools": ["read", "grep", "glob", "code"],
+  "toolsSettings": {
+    "write": {
+      "allowedPaths": [
+        "./*.py",
+        "./tests/**",
+        "./.kiro/**"
+      ],
+      "deniedPaths": [
+        "./tests/fixtures/query.fasta",
+        "./tests/fixtures/reference.fasta"
+      ]
+    },
+    "shell": {
+      "allowedCommands": [
+        "python3 -m pytest",
+        "python3 -m py_compile"
+      ],
+      "autoAllowReadonly": true
+    }
+  },
+  "resources": [
+    "file://.kiro/steering/python.md",
+    "file://.kiro/steering/project.md",
+    "file://utils.py",
+    "file://scaffold_builder.py",
+    "file://cli.py",
+    "file://main.py"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "python3 -m py_compile utils.py scaffold_builder.py cli.py main.py && echo 'All files compile OK'"
+      }
+    ]
+  },
+  "welcomeMessage": "Scaffold_builder dev environment ready. Run tests with: python3 -m pytest tests/ -v"
+}
