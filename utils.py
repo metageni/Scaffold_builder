@@ -14,7 +14,7 @@ from importlib.metadata import version as _pkg_version
 try:
     VERSION = _pkg_version("scaffold-builder")
 except Exception:
-    VERSION = "3.0.0"
+    VERSION = "3.0.1"
 
 DEFAULTS = {
     "-a": 95,
