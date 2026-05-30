@@ -23,8 +23,8 @@ htmlcov/
 *_Scaffold.fasta
 *_output.txt
 *_overlap_alignment/
-*.coords
-*.delta
+/*.coords
+/*.delta
 
 # macOS
 .DS_Store
