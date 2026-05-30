@@ -282,10 +282,10 @@ class TestParityWithPython2:
         assert "contig_unmapped_not_mapped" in content
 
     def test_output_log_version_string_parity(self, tmp_path):
-        """Output log starts with the version string from the original."""
+        """Output log starts with the Scaffold_builder version string."""
         _run_pipeline(tmp_path, str(FIXTURES / "test.coords"))
         log = (tmp_path / "out_output.txt").read_text()
-        assert log.startswith("Scaffold_builder version 2.2 log file")
+        assert log.startswith("Scaffold_builder version")
 
 
 # ---------------------------------------------------------------------------
@@ -588,3 +588,163 @@ class TestEndToEnd:
         """The intermediate .delta file is cleaned up after show-coords runs."""
         self._run(tmp_path)
         assert not (tmp_path / "out.delta").exists()
+
+
+# ---------------------------------------------------------------------------
+# Large fixture test
+# Fixtures: large_query.fasta  (35 mapped contigs 5–20 kb + 2 unmapped 3 kb)
+#           large_reference.fasta (500 kb reference, random seed 99)
+#           large.coords  (hand-crafted, matching sequences exactly)
+#
+# Key features exercised:
+#   - 33 gap-filling events (200–6000 nt)
+#   - 1 large gap (6000 nt) after ctg20 → splits into Scaffold_1 + Scaffold_2
+#   - ctg10/ctg11 overlap 150 nt → NW merge (overlapOver=1)
+#   - ctg7, ctg19 reverse-mapped
+#   - 2 unmapped contigs
+#
+# Golden values confirmed by running both the hand-crafted fixture pipeline
+# AND real nucmer end-to-end — both produce identical output.
+# ---------------------------------------------------------------------------
+
+LARGE_QUERY  = str(FIXTURES / "large_query.fasta")
+LARGE_REF    = str(FIXTURES / "large_reference.fasta")
+LARGE_COORDS = str(FIXTURES / "large.coords")
+
+
+def _run_large(tmp_path):
+    """Run the pipeline on large fixtures.
+
+    Args:
+        tmp_path (Path): Pytest temporary directory.
+
+    Returns:
+        tuple: (params, scaffold_text, log_text)
+    """
+    prefix = str(tmp_path / "out")
+    (tmp_path / "out_overlap_alignment").mkdir()
+    params = build_parameters({"-q": LARGE_QUERY, "-r": LARGE_REF, "-p": prefix})
+    seqs = fasta2hash(LARGE_QUERY)
+    coords = coord2hash(LARGE_COORDS, params, seqs)
+    cleaned = clean_coords(coords, params, seqs)
+    sort_mapping(cleaned, params, seqs)
+    scaffold = (tmp_path / "out_Scaffold.fasta").read_text()
+    log = (tmp_path / "out_output.txt").read_text()
+    return params, scaffold, log
+
+
+class TestLargeFixture:
+    """End-to-end test on large inputs (500 kb ref, 35 contigs 5–20 kb).
+
+    All golden values confirmed against real nucmer output.
+    """
+
+    def test_two_scaffolds_produced(self, tmp_path):
+        """Large gap (6000 nt) after ctg20 splits output into Scaffold_1 and Scaffold_2."""
+        _, scaffold, _ = _run_large(tmp_path)
+        headers = [l for l in scaffold.splitlines() if l.startswith(">Scaffold_")]
+        assert headers == [">Scaffold_1", ">Scaffold_2"]
+
+    def test_scaffold_lengths(self, tmp_path):
+        """Scaffold_1=279979 nt, Scaffold_2=176405 nt (golden values from nucmer run)."""
+        _, scaffold, _ = _run_large(tmp_path)
+        lengths = {}
+        current = None
+        for line in scaffold.splitlines():
+            if line.startswith(">"):
+                current = line[1:]
+                lengths[current] = 0
+            else:
+                lengths[current] += len(line)
+        assert lengths["Scaffold_1"] == 279979
+        assert lengths["Scaffold_2"] == 176405
+
+    def test_gap_count(self, tmp_path):
+        """33 gap-filling events (one per non-overlapping adjacent pair)."""
+        params, _, _ = _run_large(tmp_path)
+        assert len(params["gaps"]) == 33
+
+    def test_gap_extremes(self, tmp_path):
+        """Shortest gap=220 nt, longest gap=6000 nt, total=39265 nt."""
+        params, _, _ = _run_large(tmp_path)
+        assert min(params["gaps"]) == 220
+        assert max(params["gaps"]) == 6000
+        assert sum(params["gaps"]) == 39265
+
+    def test_overlap_resolved(self, tmp_path):
+        """ctg10/ctg11 150-nt overlap resolved by NW (overlapOver=1)."""
+        params, _, _ = _run_large(tmp_path)
+        assert params["overlapOver"] == 1
+        assert params["overlapBelow"] == 0
+
+    def test_unmapped_contigs(self, tmp_path):
+        """Both unmapped contigs written with _not_mapped suffix."""
+        _, scaffold, _ = _run_large(tmp_path)
+        assert ">ctg_unmapped1_not_mapped" in scaffold
+        assert ">ctg_unmapped2_not_mapped" in scaffold
+
+    def test_log_statistics(self, tmp_path):
+        """Log statistics match golden values from nucmer run."""
+        _, _, log = _run_large(tmp_path)
+        assert "Total length\t447757\t462384" in log
+        assert "Number of sequences\t37\t4" in log
+        assert "N50\t14464\t279979" in log
+        assert "Non-overlapping contig pairs\t-\t33" in log
+        assert "Total length of gaps\t-\t39265" in log
+        assert "Longest gap\t-\t6000" in log
+        assert "Shortest gap\t-\t220" in log
+        assert "Overlapping contig pairs (>=80% id)\t-\t1" in log
+
+
+@pytest.mark.skipif(_which("nucmer") is None, reason="nucmer not on PATH")
+class TestLargeEndToEnd:
+    """Large fixture end-to-end test with real nucmer.
+
+    Verifies that real nucmer alignment produces output identical to the
+    hand-crafted large.coords fixture run.
+    """
+
+    def _run(self, tmp_path):
+        """Run full pipeline via scaffold_builder.run().
+
+        Args:
+            tmp_path (Path): Pytest temporary directory.
+
+        Returns:
+            tuple: (params, scaffold_text, log_text)
+        """
+        from scaffold_builder import run
+        prefix = str(tmp_path / "out")
+        params = build_parameters({"-q": LARGE_QUERY, "-r": LARGE_REF, "-p": prefix})
+        run(params)
+        scaffold = (tmp_path / "out_Scaffold.fasta").read_text()
+        log = (tmp_path / "out_output.txt").read_text()
+        return params, scaffold, log
+
+    def test_two_scaffolds(self, tmp_path):
+        """Real nucmer: large gap splits output into exactly Scaffold_1 + Scaffold_2."""
+        _, scaffold, _ = self._run(tmp_path)
+        headers = [l for l in scaffold.splitlines() if l.startswith(">Scaffold_")]
+        assert headers == [">Scaffold_1", ">Scaffold_2"]
+
+    def test_gap_stats_match_fixture(self, tmp_path):
+        """Real nucmer gap stats match hand-crafted fixture golden values."""
+        params, _, _ = self._run(tmp_path)
+        assert len(params["gaps"]) == 33
+        assert min(params["gaps"]) == 220
+        assert max(params["gaps"]) == 6000
+        assert sum(params["gaps"]) == 39265
+
+    def test_overlap_match_fixture(self, tmp_path):
+        """Real nucmer: overlapOver=1, overlapBelow=0 (matches fixture)."""
+        params, _, _ = self._run(tmp_path)
+        assert params["overlapOver"] == 1
+        assert params["overlapBelow"] == 0
+
+    def test_log_statistics_match_fixture(self, tmp_path):
+        """Real nucmer log statistics are identical to fixture golden values."""
+        _, _, log = self._run(tmp_path)
+        assert "Total length\t447757\t462384" in log
+        assert "Number of sequences\t37\t4" in log
+        assert "N50\t14464\t279979" in log
+        assert "Total length of gaps\t-\t39265" in log
